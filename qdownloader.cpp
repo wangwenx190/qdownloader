@@ -45,7 +45,7 @@ QDownloader::QDownloader(QObject *parent) : QObject(parent)
     QNetworkProxyFactory::setUseSystemConfiguration(true);
 #if (QT_VERSION >= QT_VERSION_CHECK(5, 9, 0))
     // Allow url redirection.
-    m_manager.setRedirectPolicy(QNetworkRequest::RedirectPolicy::NoLessSafeRedirectPolicy);
+    m_manager.setRedirectPolicy(QNetworkRequest::NoLessSafeRedirectPolicy);
 #endif
 #if (QT_VERSION >= QT_VERSION_CHECK(5, 14, 0))
     m_manager.setAutoDeleteReplies(true);
@@ -114,6 +114,9 @@ void QDownloader::start_internal()
     QNetworkRequest request(m_url);
 #if (QT_VERSION < QT_VERSION_CHECK(5, 9, 0))
     request.setAttribute(QNetworkRequest::FollowRedirectsAttribute, true);
+#else
+    request.setAttribute(QNetworkRequest::RedirectPolicyAttribute,
+                         QNetworkRequest::NoLessSafeRedirectPolicy);
 #endif
     if (append) {
         const QString headerContent = QString::fromUtf8("bytes=%1-").arg(m_currentReceivedBytes);
@@ -455,8 +458,7 @@ QDownloader::FileInfo QDownloader::getRemoteFileInfo(const QUrl &val,
 #endif
 #if 0
 #if (QT_VERSION >= QT_VERSION_CHECK(5, 9, 0))
-    headManager.setRedirectPolicy(
-        QNetworkRequest::RedirectPolicy::NoLessSafeRedirectPolicy);
+    headManager.setRedirectPolicy(QNetworkRequest::NoLessSafeRedirectPolicy);
 #endif
 #endif
 #if (QT_VERSION >= QT_VERSION_CHECK(5, 14, 0))
@@ -466,6 +468,8 @@ QDownloader::FileInfo QDownloader::getRemoteFileInfo(const QUrl &val,
 #if 0
 #if (QT_VERSION < QT_VERSION_CHECK(5, 9, 0))
         headRequest.setAttribute(QNetworkRequest::FollowRedirectsAttribute, true);
+#else
+        headRequest.setAttribute(QNetworkRequest::RedirectPolicyAttribute, QNetworkRequest::NoLessSafeRedirectPolicy);
 #endif
 #endif
         QNetworkReply *headReply = headManager.head(headRequest);
